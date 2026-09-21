@@ -29,6 +29,7 @@ Arianna Mekovich - campus_life Corpus
 
      Milestone 5. -->
 
+The Unofficial Guide is a document-based question-answering system built for CodePath AI 201. It uses the `campus_life` corpus, which contains 88 short student-life documents covering topics such as housing, dining, academics, and financial aid. The application processes these documents, generates text embeddings, and stores them in a vector database to retrieve information relevant to a user's question. It uses the retrieved documents to generate answers with source citations and a relevance gate to prevent unsupported responses.
 
 ## Chunking Strategy
 
@@ -202,9 +203,20 @@ The relevance gate rejected this question because its best retrieval distance wa
 
      Milestone 5. -->
 
-**1.**
+**1. Developing my custom chunking strategy**
 
-**2.**
+I used ChatGPT to help develop a custom chunking function for my `campus_life` corpus. I provided the original `chunker.py`, `config.py`, and the results from my initial document indexing. ChatGPT suggested a paragraph-aware chunking strategy using a target size of 400 characters and zero overlap.
+
+I implemented the suggested function and tested it against my documents. The custom chunker generated 100 chunks compared to the original 88, with an average chunk length of 278 characters. I reviewed five generated chunks to verify that they preserved complete sentences and retained their source information. I also chose to keep my original `save_chunk()` implementation rather than apply an optional indexing optimization suggested by ChatGPT.
+
+**2. Selecting and verifying my relevance cutoff**
+
+I used ChatGPT to help interpret the retrieval distances from my five in-corpus questions and five out-of-scope questions. I provided the actual retrieval results and asked for help selecting an appropriate relevance cutoff.
+
+ChatGPT identified a gap between the highest in-corpus distance (0.3962) and the lowest out-of-scope distance (0.8246). Based on these measurements, I decided to keep the original cutoff of 0.6 rather than change it without evidence.
+
+I then tested a housing lottery question to verify that the model generated a grounded answer with a source citation. I also tested an unrelated question about Mongolia and confirmed that the relevance gate rejected it without making a model call. 
+
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
