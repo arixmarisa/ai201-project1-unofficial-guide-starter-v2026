@@ -231,6 +231,27 @@ I plan to implement the following extra-credit features in my project:
      **Conversational Memory:** Allow users to ask follow-up questions that build on previous questions and answers.
      **Second Embedding Model:** Implement an alternative embedding model and compare its retrieval results with the original model to identify differences in performance.
 
+### Metadata Filtering — Implemented
+
+I implemented metadata filtering to allow users to narrow retrieval results to a specific source document.
+
+My application stores source filenames as metadata in ChromaDB. I added an optional `--source` argument to the `retrieve` and `ask` commands, which filters the vector search before the results are passed to the model.
+
+**Example:**
+
+```bash
+python app.py ask "How are juniors and seniors prioritized in the housing lottery?" --source admin_housing_lottery.txt
+```
+
+**Testing Results:**
+
+- Filtering to `admin_housing_lottery.txt` returned only the requested document and generated a correct answer with a source citation.
+- Filtering a housing lottery question to `admin_dining_dollars.txt` produced a best distance of 0.8041, exceeding the relevance cutoff of 0.6. The system rejected the question.
+- Filtering to a nonexistent filename returned an empty-results message without crashing.
+
+The relevance gate and grounding instructions remain active when metadata filtering is enabled.
+
+
 ---
 
 # Unit 2

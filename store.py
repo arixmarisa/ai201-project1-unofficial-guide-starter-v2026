@@ -183,6 +183,7 @@ def search(
     top_k: int | None = None,
     corpus: str | None = None,
     variant: str = "default",
+    source: str | None = None,
 ) -> list[Result]:
     """
     Retrieve the chunks closest in meaning to a question.
@@ -199,10 +200,16 @@ def search(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
 
-    raw = collection.query(
-        query_embeddings=embed([question]),
-        n_results=min(top_k, collection.count()),
-    )
+    # Apply an optional source filter before retrieving chunks.
+    query_options = {
+        "query_embeddings": embed([question]),
+        "n_results": min(top_k, collection.count()),
+    }
+
+    if source:
+        query_options["where"] = {"source": source}
+
+    raw = collection.query(**query_options)
 
     results: list[Result] = []
     for text, meta, distance in zip(
