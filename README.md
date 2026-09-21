@@ -252,6 +252,35 @@ python app.py ask "How are juniors and seniors prioritized in the housing lotter
 The relevance gate and grounding instructions remain active when metadata filtering is enabled.
 
 
+### Conversational Memory — Implemented
+
+I implemented short-term conversational memory to allow users to ask follow-up questions based on previous questions and answers.
+
+The application uses a `ConversationMemory` class in `memory.py` to store the three most recent successful question-and-answer exchanges during an interactive terminal session. Previous questions provide additional context when retrieving documents for follow-up questions.
+
+The relevance gate and grounding instructions remain active, ensuring that the system continues to generate answers using retrieved documents rather than relying solely on conversation history.
+
+Refused questions are not stored in memory, and the conversation history is cleared when the application exits.
+
+#### Example Conversation
+
+**Question 1:** How does the housing lottery work for juniors and seniors?
+
+**Answer 1:** For juniors and seniors, the housing lottery orders students by accumulated credit hours first, with any ties broken randomly (*admin_housing_lottery.txt*).
+
+**Question 2:** When do the numbers come out?
+
+**Answer 2:** The numbers come out the second week of March (Source: admin_housing_lottery.txt).
+
+#### Test Results
+
+- Initial question best distance: 0.184
+- Follow-up question best distance: 0.207
+- Both questions passed the relevance gate using the 0.6 cutoff.
+- Both answers identified `admin_housing_lottery.txt` as their source.
+- The application successfully used the previous question as context to answer the follow-up.
+
+
 ---
 
 # Unit 2

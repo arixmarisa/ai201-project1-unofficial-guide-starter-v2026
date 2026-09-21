@@ -249,6 +249,7 @@ def _ask_one(
     show_distances=True,
     show_prompt=False,
     source=None,
+    memory=None,
 ):
     import gate
     from generate import GROUNDING_INSTRUCTION
@@ -268,8 +269,11 @@ def _ask_one(
         print(prompt)
         print("=" * 70)
 
+    # Include prior questions in retrieval, while grounding the answer in documents.
+    retrieval_question = memory.contextualize(question) if memory is not None else question
+
     outcome = ask_pipeline(
-        question,
+        retrieval_question,
         corpus=corpus,
         variant=variant,
         top_k=top_k,
@@ -285,12 +289,17 @@ def _ask_one(
 
     print(f"\n{outcome['answer']}\n")
     print(f"Sources retrieved: {', '.join(outcome['sources'])}\n")
+    if memory is not None:
+        memory.add(question, outcome["answer"])
     return outcome["answer"]
 
 
 def cmd_ask(args):
     corpus = args.corpus or config.CORPUS
     import generate as gen
+    from memory import ConversationMemory
+
+    memory = ConversationMemory(max_turns=3)
 
     try:
         if args.question:
@@ -321,6 +330,7 @@ def cmd_ask(args):
                     args.threshold,
                     show_prompt=args.show_prompt,
                     source=args.source,
+                    memory=memory,
                 )
     finally:
         print(gen.usage())
@@ -369,16 +379,18 @@ def build_parser():
     p_ret.add_argument("question")
     p_ret.add_argument("--top-k", type=int)
     p_ret.add_argument(
-    "--source",
-    help="retrieve chunks from a specific source filename",)
+        "--source",
+        help="retrieve chunks from a specific source filename",
+    )
     p_ret.set_defaults(func=cmd_retrieve)
 
     p_ask = sub.add_parser("ask", help="ask a question")
     p_ask.add_argument("question", nargs="?")
     p_ask.add_argument("--top-k", type=int)
     p_ask.add_argument(
-    "--source",
-    help="answer using only a specific source document",)
+        "--source",
+        help="answer using only a specific source document",
+    )
     p_ask.add_argument("--threshold", type=float, help="override the gate cutoff")
     p_ask.add_argument(
         "--show-prompt",
