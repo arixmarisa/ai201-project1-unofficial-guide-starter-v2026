@@ -281,6 +281,69 @@ Refused questions are not stored in memory, and the conversation history is clea
 - The application successfully used the previous question as context to answer the follow-up.
 
 
+### Second Embedding Model — Implemented
+
+I implemented a second embedding model to compare retrieval results against my original model.
+
+**Original model:** `all-MiniLM-L6-v2`
+
+**Alternative model:** `sentence-transformers/all-MiniLM-L12-v2`
+
+I installed Sentence Transformers 3.4.1 and configured my application to use the alternative embedding model. I created a separate ChromaDB index using the `minilm_l12` variant to preserve the original index.
+
+Both models indexed the same 100 chunks from my `campus_life` corpus.
+
+#### Retrieval Comparison
+
+I tested both models using the same five in-corpus questions and five out-of-scope questions.
+
+| Question | Original L6 Distance | Alternative L12 Distance |
+|---|---:|---:|
+| When can students declare their major? | 0.3560 | 0.3588 |
+| How do work-study earnings affect financial aid compared to non-work-study campus jobs? | 0.1379 | 0.1028 |
+| How are juniors and seniors prioritized in the housing lottery? | 0.2050 | 0.2190 |
+| When do unused dining dollars expire? | 0.3675 | 0.3766 |
+| Which campus housing building is closest to the science quad? | 0.3962 | 0.5371 |
+| What is the capital of Mongolia? | 0.8246 | 0.8413 |
+| How do I change the oil in a diesel engine? | 0.9340 | 0.8445 |
+| Who won the 1994 World Cup? | 0.8859 | 0.8268 |
+| What is the recommended dosage of ibuprofen for a headache? | 0.8442 | 0.8046 |
+| How do I write a for loop in Rust? | 0.8907 | 0.8541 |
+
+#### What Changed?
+
+The alternative model produced different retrieval distances, although it retrieved the same correct top-ranked documents for all five in-corpus questions.
+
+The most noticeable difference was the science quad housing question, whose best distance increased from 0.3962 to 0.5371.
+
+For the alternative model, the in-corpus distances ranged from 0.1028 to 0.5371, while the out-of-scope distances ranged from 0.8046 to 0.8541.
+
+Both models accepted all five supported questions and rejected all five unsupported questions using the relevance cutoff of 0.6.
+
+I kept the original cutoff because it remained within the gap between the supported and unsupported questions for both models.
+
+#### Running the Alternative Model
+
+After configuring `EMBEDDING_MODEL` in `config.py`:
+
+```python
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
+```
+
+I created the alternative index using:
+
+```bash
+python app.py --variant minilm_l12 index
+```
+
+To retrieve documents using the alternative model:
+
+```bash
+python app.py --variant minilm_l12 retrieve "When do unused dining dollars expire?"
+```
+
+The alternative model must be used with its corresponding index. Switching back to the original model requires restoring the original embedding configuration and using the `default` index.
+
 ---
 
 # Unit 2
