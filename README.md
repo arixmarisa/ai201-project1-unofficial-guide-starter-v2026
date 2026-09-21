@@ -135,14 +135,15 @@ The bad: known damp problem on the ground floor; two rooms were taken offline in
 <!-- One complete question and answer, pasted as text, with the source line
      visible. Milestone 4. -->
 
-**Question:**
+**Question:** How are juniors and seniors prioritized in the housing lottery?
 
 **Answer:**
 
-```
-```
+Juniors and seniors are ordered by accumulated credit hours first, with ties broken randomly in the housing lottery.
 
-**My relevance cutoff:**
+Source: admin_housing_lottery.txt
+
+**My relevance cutoff: 0.6**
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -153,9 +154,42 @@ The bad: known damp problem on the ground floor; two rooms were taken offline in
 
      Milestone 4. -->
 
+I selected a relevance cutoff of 0.6 after comparing the best retrieval distances for five questions covered by my corpus and five out-of-scope questions.
+
+The in-corpus questions had best distances ranging from 0.1379 to 0.3962, while the out-of-scope questions had best distances ranging from 0.8246 to 0.9340.
+
+There was a clear gap between the highest in-corpus distance (0.3962) and the lowest out-of-scope distance (0.8246).
+
+Since 0.6 falls within this gap, I kept the original cutoff. It accepted all five in-corpus questions and rejected all five out-of-scope questions during retrieval testing.
+
+### Retrieval Distance Results
+
 | Question | In corpus? | Best distance |
-|---|---|---|
-|  |  |  |
+|---|---|---:|
+| When can students declare their major? | Yes | 0.3560 |
+| How do work-study earnings affect financial aid compared to non-work-study campus jobs? | Yes | 0.1379 |
+| How are juniors and seniors prioritized in the housing lottery? | Yes | 0.2050 |
+| When do unused dining dollars expire? | Yes | 0.3675 |
+| Which campus housing building is closest to the science quad? | Yes | 0.3962 |
+| What is the capital of Mongolia? | No | 0.8246 |
+| How do I change the oil in a diesel engine? | No | 0.9340 |
+| Who won the 1994 World Cup? | No | 0.8859 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
+| How do I write a for loop in Rust? | No | 0.8907 |
+
+### Grounding and Relevance Gate Verification
+
+I tested the grounding instructions using the housing lottery question. The model generated an answer using the retrieved documents and identified `admin_housing_lottery.txt` as its source.
+
+I also tested an out-of-scope question:
+
+**Question:** What is the capital of Mongolia?
+
+**Response:**
+
+I don't have enough information about that.
+
+The relevance gate rejected this question because its best retrieval distance was 0.8246, which exceeded the cutoff of 0.6. The application returned the refusal without making a model call.
 
 ## How I Used AI
 
