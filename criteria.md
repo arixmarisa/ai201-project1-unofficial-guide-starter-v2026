@@ -26,6 +26,8 @@ contains the answer.
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
 
+My corpus contains short student-life documents that provide specific information about topics such as housing, dining, and academics. I chose 4 out of 5 because I expect the system to retrieve the correct information for most questions, but some questions may be more difficult if the information is spread across multiple documents.
+
 ---
 
 ## 2. Every answer names a source
@@ -35,6 +37,9 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
+
+I want users to know where the information in each answer came from so they can verify it themselves. Since my system retrieves information from documents before generating an answer, I expect every generated answer to identify at least one source rather than provide information without evidence.
+
 
 ---
 
@@ -49,13 +54,16 @@ in at least 4 of 5 tries.
      what happened into your run log. Swap them for your own if you'd rather —
      just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
 
+ My corpus focuses on student life, so the system should not attempt to answer unrelated questions using information that does not support them. I chose 4 out of 5 because I want the system to reject most unsupported questions while allowing room to improve the relevance cutoff if it incorrectly accepts a question.
+
+
 **Why this target:**
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
 
 ---
 
-## 4. Something about your chunks
+## 4. Something about your chunks - Chunk completeness
 
 <!-- YOU WRITE THIS ONE.
 
@@ -69,15 +77,17 @@ in at least 4 of 5 tries.
        - "No chunk is shorter than 200 characters, since anything below that
           in my corpus turned out to be a heading with no content under it." -->
 
-
+At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks.
 
 **Why this target:**
+
+I want each chunk to contain complete sentences so that the information makes sense when retrieved and used to generate an answer. Since my corpus contains relatively short student-life posts, keeping sentences together should help preserve their meaning and provide enough context for a complete response.
 
 
 
 ---
 
-## 5. Your choice
+## 5. Your choice - Answer accuracy
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -87,10 +97,11 @@ in at least 4 of 5 tries.
      present — anything, as long as it names a number or an observable
      outcome. -->
 
-
+For at least 4 of my 5 test questions, the generated answer contains the expected information recorded in `questions.py`.
 
 **Why this target:**
 
+I want my system to provide accurate information that answers the user's question rather than simply retrieve related documents. I chose 4 out of 5 because I want the system to achieve high accuracy while still allowing room for improvement if an answer is incomplete or does not contain the expected information.
 
 
 ---
