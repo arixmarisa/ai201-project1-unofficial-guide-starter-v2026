@@ -2,6 +2,8 @@
 
 <!-- Replace this line with your name and which corpus you picked. -->
 
+Arianna Mekovich - campus_life Corpus
+
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
 >
@@ -26,6 +28,7 @@
      this repo.
 
      Milestone 5. -->
+
 
 ## Chunking Strategy
 
@@ -129,9 +132,9 @@
 
 I plan to implement the following extra-credit features in my project:
      
-     - **Metadata Filtering:** Allow users to narrow search results by document source or date.
-     - **Conversational Memory:** Allow users to ask follow-up questions that build on previous questions and answers.
-     - **Second Embedding Model:** Implement an alternative embedding model and compare its retrieval results with the original model to identify differences in performance.
+     **Metadata Filtering:** Allow users to narrow search results by document source or date.
+     **Conversational Memory:** Allow users to ask follow-up questions that build on previous questions and answers.
+     **Second Embedding Model:** Implement an alternative embedding model and compare its retrieval results with the original model to identify differences in performance.
 
 ---
 
