@@ -32,8 +32,8 @@ Arianna Mekovich - campus_life Corpus
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** 400 characters (target)
+**Overlap:** 0 characters
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -44,6 +44,30 @@ Arianna Mekovich - campus_life Corpus
      more than pretending you got it right first time.
 
      Milestone 3. -->
+
+I chose a paragraph-aware chunking strategy because my `campus_life` corpus contains 88 short student-life posts, averaging 317 characters per document.
+
+The original chunker used fixed 800-character windows with a 120-character overlap. It produced 88 chunks, which meant that each document remained a single chunk.
+
+My custom `split_documents()` function divides documents at paragraph and sentence boundaries rather than cutting them at fixed character positions. Short paragraphs are combined when they fit within the target chunk size, while longer paragraphs are split between sentences.
+
+I chose a target of 400 characters because most of the documents are already relatively short. This allows shorter posts to remain together while separating longer posts into smaller chunks.
+
+I chose zero overlap because the documents contain short, mostly self-contained passages. The goal is to preserve complete sentences without unnecessarily duplicating information between chunks.
+
+The chunk size is a target rather than a strict maximum because a sentence longer than 400 characters is preserved instead of being split in the middle.
+
+### Initial Results
+
+| Measurement | Original Chunker | Custom Chunker |
+|---|---:|---:|
+| Documents | 88 | 88 |
+| Total chunks | 88 | 100 |
+| Average chunk length | 317 | 278 |
+| Shortest chunk | 178 | 94 |
+| Longest chunk | 549 | 400 |
+
+The custom chunker produced 12 additional chunks and reduced the average chunk length while preserving sentence boundaries in the five sampled chunks.
 
 ## Sample Chunks
 
@@ -56,29 +80,54 @@ Arianna Mekovich - campus_life Corpus
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `admin_add_drop_deadline.txt#0` — produced by: `chunker.py::split_documents`
 
-```
-```
+```text
+On the add/drop deadline
 
-**Chunk 2** — source: `` — produced by: ``
-
-```
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 2** — source: `course_cs_210.txt#0` — produced by: `chunker.py::split_documents`
 
-```
+```text
+CS 210 Data Structures
+
+I'm a junior and I've done this twice now. Format is lecture with weekly labs; slides go up after class, not before. Assessment: two midterms and a final, all drawn from lecture material rather than the textbook. Midterms are curved, the final is not.
+
+Expect 8 to 10 hours a week outside class.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 3** — source: `course_math_220_workload.txt#0` — produced by: `chunker.py::split_documents`
 
-```
+```text
+Workload for MATH 220 Linear Algebra
+
+People keep asking so: 6 to 8 hours a week, almost all of it on problem sets. That's real time, not optimistic time.
+
+It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 4** — source: `dining_the_ridgeway_cafe_followup.txt#0` — produced by: `chunker.py::split_documents`
 
+```text
+Re: The Ridgeway Café
+
+Adding to what people have said about The Ridgeway Café. The wait figure of 10 to 15 minutes at 12:30 matches what I've seen. If you're trying to eat between classes, go before 11:45 and it's a different building entirely.
+
+Also worth saying: seating is tight; about 40 seats for a building of 900. Nobody tells you this at orientation.
 ```
+
+**Chunk 5** — source: `housing_morrow_house.txt#0` — produced by: `chunker.py::split_documents`
+
+```text
+Morrow House — what it's actually like
+
+Just finished a year in this building. Built 1954, partially renovated 2008. Rooms are singles and doubles, hall bathrooms.
+
+The good: cheapest housing tier by about $900 a year, and the singles are real singles.
+
+The bad: known damp problem on the ground floor; two rooms were taken offline in 2024.
 ```
 
 ## Sample Answer

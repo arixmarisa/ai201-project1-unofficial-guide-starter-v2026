@@ -25,6 +25,7 @@ your pipeline, not giving up.
 from dataclasses import dataclass
 
 import config
+import re
 from ingest import Document
 
 
@@ -79,8 +80,7 @@ def fallback_split(
 
     return chunks
 
-
-def split_documents(documents: list[Document]) -> list[Chunk]:
+#def split_documents(documents: list[Document]) -> list[Chunk]:
     """
     Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
 
@@ -97,7 +97,101 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
       - Would splitting on paragraph breaks keep more thoughts intact than
         splitting on a character count?
     """
-    return fallback_split(documents)
+    #return fallback_split(documents)
+
+
+def split_documents(documents: list[Document]) -> list[Chunk]:
+    """
+    Split short student-life documents into paragraph-aware chunks.
+
+    Strategy:
+    - Preserve complete sentences.
+    - Keep short paragraphs together when they fit.
+    - Split longer paragraphs at sentence boundaries.
+    - Avoid duplicating text between chunks.
+    - Preserve source information for every chunk.
+    """
+
+    chunk_size = config.CHUNK_SIZE
+    chunks: list[Chunk] = []
+
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be greater than zero")
+
+    for doc in documents:
+        text = doc.text.strip()
+
+        if not text:
+            continue
+
+        # Split the document into paragraphs.
+        paragraphs = re.split(r"\n\s*\n", text)
+
+        current_chunk = ""
+
+        def save_chunk():
+            """Save the current chunk and preserve its source."""
+            nonlocal current_chunk
+
+            if not current_chunk.strip():
+                return
+
+            chunks.append(
+                Chunk(
+                    text=current_chunk.strip(),
+                    source=doc.source,
+                    index=sum(
+                        1 for chunk in chunks
+                        if chunk.source == doc.source
+                    ),
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+
+            current_chunk = ""
+
+        for paragraph in paragraphs:
+            paragraph = paragraph.strip()
+
+            if not paragraph:
+                continue
+
+            # Preserve short paragraphs when possible.
+            if len(paragraph) <= chunk_size:
+                if not current_chunk:
+                    current_chunk = paragraph
+
+                elif len(current_chunk) + len(paragraph) + 2 <= chunk_size:
+                    current_chunk += "\n\n" + paragraph
+
+                else:
+                    save_chunk()
+                    current_chunk = paragraph
+
+                continue
+
+            # Split longer paragraphs at sentence boundaries.
+            sentences = re.split(r"(?<=[.!?])\s+", paragraph)
+
+            for sentence in sentences:
+                sentence = sentence.strip()
+
+                if not sentence:
+                    continue
+
+                if not current_chunk:
+                    current_chunk = sentence
+
+                elif len(current_chunk) + len(sentence) + 1 <= chunk_size:
+                    current_chunk += " " + sentence
+
+                else:
+                    save_chunk()
+                    current_chunk = sentence
+
+        # Save the final chunk from this document.
+        save_chunk()
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:
