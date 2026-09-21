@@ -49,3 +49,6 @@ flask>=3.0,<3.2
 # development server and says so out loud; this is the one you actually deploy
 # behind. Installed now so unit 9 is a command, not a dependency problem.
 gunicorn>=23.0,<24.0
+
+# Extra credit: alternative embedding model
+sentence-transformers>=3.4,<3.5

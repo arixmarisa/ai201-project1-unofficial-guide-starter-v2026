@@ -58,8 +58,12 @@ THRESHOLD = 0.6
 # which needs `pip install 'sentence-transformers>=3.4,<3.5'` first. store.py
 # says so with a real error message rather than a stack trace if you forget.
 
-#EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
+# Original embedding model
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+# Extra-credit alternative:
+#EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
+
 MODEL = os.getenv("AI201_MODEL", "gemini-3.5-flash-lite")
 
 
