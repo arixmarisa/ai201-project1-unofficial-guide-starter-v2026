@@ -125,6 +125,14 @@
      claims earns nothing.
      ───────────────────────────────────────────────────────────────────────── -->
 
+## Stretch Features:
+
+I plan to implement the following extra-credit features in my project:
+     
+     - **Metadata Filtering:** Allow users to narrow search results by document source or date.
+     - **Conversational Memory:** Allow users to ask follow-up questions that build on previous questions and answers.
+     - **Second Embedding Model:** Implement an alternative embedding model and compare its retrieval results with the original model to identify differences in performance.
+
 ---
 
 # Unit 2
