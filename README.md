@@ -734,3 +734,160 @@ For the Unit 2 stretch feature, I will test a second measured improvement by red
 I chose this change because my first improvement showed that the current evaluation criteria do not measure retrieval ranking quality very precisely. The system only needs the correct information to appear somewhere in the top five retrieved chunks. Reducing `TOP_K` to 3 creates a stricter retrieval setting and tests whether the system can continue retrieving the necessary information while passing less unrelated context to the generation stage.
 
 I will keep the hybrid semantic and BM25 retrieval implementation, chunking strategy, embedding model, relevance cutoff, questions, and generation pipeline unchanged. Only `TOP_K` will change so the results can be compared with the previous evaluation.
+
+### **Stretch Run Log — TOP_K = 3**
+
+The second measured improvement reduced the number of retrieved chunks from `TOP_K = 5` to `TOP_K = 3`.
+
+The evaluation was produced by `run_eval.py::main` using:
+
+- Retrieval: `store.py::search`
+- Chunking: `chunker.py::split_documents`
+- Hybrid semantic + BM25 retrieval
+- `TOP_K = 3`
+- Relevance cutoff: `0.6`
+- Three runs per test question with caching disabled
+
+The complete raw evaluation is stored in:
+
+`results/run_2026-09-27_1347_stretch.md`
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+### **Real Output — Stretch**
+
+Produced by: `run_eval.py::main`
+
+Retrieval: `store.py::search`
+
+Chunking: `chunker.py::split_documents`
+
+#### **Criterion 1 — Retrieved chunk contains the answer**
+
+Example:
+
+```text
+Question: Which campus housing building is closest to the science quad?
+
+Best distance: 0.3962
+
+Sources retrieved:
+housing_aldridge_hall.txt
+housing_old_brewhouse.txt
+transit_walking.txt
+```
+
+The expected answer, `Aldridge Hall`, was contained in the top retrieved source, `housing_aldridge_hall.txt`.
+
+Result: 5/5 in all three runs.
+
+#### **Criterion 2 — Every answer names a source**
+
+Example:
+
+```text
+Aldridge Hall is the closest building to the science quad
+(four minutes to a 9am lab).
+
+Source: housing_aldridge_hall.txt
+(also supported by transit_walking.txt)
+```
+
+All generated answers named at least one source.
+
+Result: 5/5 in all three runs.
+
+#### **Criterion 3 — Gate stops out-of-corpus questions**
+
+Produced by: `run_eval.py::check_out_of_scope`
+
+```text
+What is the capital of Mongolia?
+best distance: 0.869 — refused
+
+How do I change the oil in a diesel engine?
+best distance: 0.934 — refused
+
+Who won the 1994 World Cup?
+best distance: 0.886 — refused
+
+What is the recommended dosage of ibuprofen for a headache?
+best distance: 0.860 — refused
+
+How do I write a for loop in Rust?
+best distance: 0.891 — refused
+
+Gate refused 5 of 5.
+```
+
+Result: 5/5.
+
+#### **Criterion 4 — Chunk completeness**
+
+The chunking strategy was unchanged during the stretch experiment.
+
+The same paragraph- and sentence-aware `chunker.py::split_documents` implementation continued to preserve complete sentence boundaries in the five sampled chunks.
+
+Result: 5/5.
+
+#### **Criterion 5 — Generated answer contains expected information**
+
+Example:
+
+```text
+Question: When do unused dining dollars expire?
+
+Answer:
+Unused dining dollars disappear in May, as they do not roll over
+from the spring semester to the following autumn.
+
+Source: admin_dining_dollars.txt
+```
+
+Expected information from `questions.py`: `May`
+
+Result: 5/5 in all three runs.
+
+### **Did the Second Improvement Help?**
+
+Reducing `TOP_K` from 5 to 3 did not increase the criterion pass rates because the previous hybrid retrieval evaluation had already achieved 5/5 on every criterion across all three runs.
+
+However, the change showed that the system could preserve the same evaluation performance while retrieving fewer chunks.
+
+| Criterion | Hybrid TOP_K = 5 | Hybrid TOP_K = 3 |
+|---|---:|---:|
+| Retrieved chunk contains the answer | 5/5 | 5/5 |
+| Every answer names a source | 5/5 | 5/5 |
+| Gate stops out-of-corpus questions | 5/5 | 5/5 |
+| Chunk completeness | 5/5 | 5/5 |
+| Generated answer contains expected information | 5/5 | 5/5 |
+
+The best retrieval distances for the five supported questions also remained unchanged:
+
+| Question | TOP_K = 5 | TOP_K = 3 |
+|---|---:|---:|
+| When can students declare their major? | 0.356 | 0.356 |
+| Work-study and financial aid | 0.138 | 0.138 |
+| Housing lottery | 0.205 | 0.205 |
+| Dining dollars | 0.367 | 0.367 |
+| Science quad housing | 0.396 | 0.396 |
+
+The out-of-scope distances also remained unchanged from the first hybrid evaluation:
+
+| Out-of-scope question | TOP_K = 5 | TOP_K = 3 |
+|---|---:|---:|
+| Capital of Mongolia | 0.869 | 0.869 |
+| Diesel engine oil | 0.934 | 0.934 |
+| 1994 World Cup | 0.886 | 0.886 |
+| Ibuprofen dosage | 0.860 | 0.860 |
+| Rust for loop | 0.891 | 0.891 |
+
+Overall, reducing `TOP_K` from 5 to 3 preserved all five criterion scores, all correct generated answers, and all relevance-gate decisions while reducing the amount of retrieved context passed to the model.
+
+The experiment therefore did not improve the pass-rate numbers, but it demonstrated that the system could achieve the same measured performance with a smaller retrieved result set.
