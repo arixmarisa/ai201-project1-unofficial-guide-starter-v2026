@@ -4,29 +4,18 @@
 
 Arianna Mekovich — `campus_life` corpus
 
-> **This file is your submission.** *Fill it in as you go — most sections get*
-
-> *written during the milestone that produces them, not at the end.*
-
+> **This file is your submission.** *Fill it in as you go — most sections get
+> written during the milestone that produces them, not at the end.*
 >
-
-> *How the starter works, and every command you'll need, is in `RUNNING.md`.*
-
-> *Leave that file alone.*
-
+> *How the starter works, and every command you'll need, is in `RUNNING.md`.
+> Leave that file alone.*
 >
-
-> **Paste everything as text.** *No screenshots, no video. A typed table gets*
-
-> *full credit; a picture of the same table gets none.*
-
+> **Paste everything as text.** *No screenshots, no video. A typed table gets
+> full credit; a picture of the same table gets none.*
 >
-
-> *Delete these instruction blocks as you replace them. The `<!-- -->` comments*
-
-> *are notes to you and don't show up when the page renders — you can leave them*
-
-> *or remove them.*
+> *Delete these instruction blocks as you replace them. The `<!-- -->` comments
+> are notes to you and don't show up when the page renders — you can leave them
+> or remove them.*
 
 ---
 
@@ -35,7 +24,6 @@ Arianna Mekovich — `campus_life` corpus
 ## **What This Does**
 
 <!-- Three or four sentences. Which corpus you picked, and the kinds of
-
      questions your system answers. Write it for someone who has never seen
      this repo.
      Milestone 5. -->
@@ -49,7 +37,6 @@ The Unofficial Guide is a document-based question-answering system built for Cod
 **Overlap:** 0 characters
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
-
      long sectioned guides don't want the same chunking, and "800 seemed
      reasonable" earns nothing. Point at something you noticed when you read
      the documents in Milestone 1.
@@ -72,17 +59,11 @@ The chunk size is a target rather than a strict maximum because a sentence longe
 ### **Initial Results**
 
 | Measurement | Original Chunker | Custom Chunker |
-
 |---|---:|---:|
-
 | Documents | 88 | 88 |
-
 | Total chunks | 88 | 100 |
-
 | Average chunk length | 317 | 278 |
-
 | Shortest chunk | 178 | 94 |
-
 | Longest chunk | 549 | 400 |
 
 The custom chunker produced 12 additional chunks and reduced the average chunk length while preserving sentence boundaries in the five sampled chunks.
@@ -90,7 +71,6 @@ The custom chunker produced 12 additional chunks and reduced the average chunk l
 ## **Sample Chunks**
 
 <!-- Five chunks, pasted as text. Label each one and name the file it came from
-
      AND the function that produced it — the grader checks your code against
      what you claim here.
      `python app.py chunks -n 5` prints all three for you. Copy them straight
@@ -100,53 +80,44 @@ The custom chunker produced 12 additional chunks and reduced the average chunk l
 **Chunk 1** — source: `admin_add_drop_deadline.txt#0` — produced by: `chunker.py::split_documents`
 
 ```text
-
 On the add/drop deadline
 
 You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
-
 ```
 
 **Chunk 2** — source: `course_cs_210.txt#0` — produced by: `chunker.py::split_documents`
 
 ```text
-
 CS 210 Data Structures
 
 I'm a junior and I've done this twice now. Format is lecture with weekly labs; slides go up after class, not before. Assessment: two midterms and a final, all drawn from lecture material rather than the textbook. Midterms are curved, the final is not.
 
 Expect 8 to 10 hours a week outside class.
-
 ```
 
 **Chunk 3** — source: `course_math_220_workload.txt#0` — produced by: `chunker.py::split_documents`
 
 ```text
-
 Workload for MATH 220 Linear Algebra
 
 People keep asking so: 6 to 8 hours a week, almost all of it on problem sets. That's real time, not optimistic time.
 
 It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
-
 ```
 
 **Chunk 4** — source: `dining_the_ridgeway_cafe_followup.txt#0` — produced by: `chunker.py::split_documents`
 
 ```text
-
 Re: The Ridgeway Café
 
 Adding to what people have said about The Ridgeway Café. The wait figure of 10 to 15 minutes at 12:30 matches what I've seen. If you're trying to eat between classes, go before 11:45 and it's a different building entirely.
 
 Also worth saying: seating is tight; about 40 seats for a building of 900. Nobody tells you this at orientation.
-
 ```
 
 **Chunk 5** — source: `housing_morrow_house.txt#0` — produced by: `chunker.py::split_documents`
 
 ```text
-
 Morrow House — what it's actually like
 
 Just finished a year in this building. Built 1954, partially renovated 2008. Rooms are singles and doubles, hall bathrooms.
@@ -154,13 +125,11 @@ Just finished a year in this building. Built 1954, partially renovated 2008. Roo
 The good: cheapest housing tier by about $900 a year, and the singles are real singles.
 
 The bad: known damp problem on the ground floor; two rooms were taken offline in 2024.
-
 ```
 
 ## **Sample Answer**
 
 <!-- One complete question and answer, pasted as text, with the source line
-
      visible. Milestone 4. -->
 
 **Question:** How are juniors and seniors prioritized in the housing lottery?
@@ -174,7 +143,6 @@ Source: admin_housing_lottery.txt
 **My relevance cutoff: 0.6**
 
 <!-- The number you set in config.py, and how you got there.
-
      You ran five questions your corpus covers and the five in OUT_OF_SCOPE
      that it clearly doesn't, and wrote down the best distance for each. What
      did those two groups look like? Where was the gap? Put the actual numbers
@@ -192,27 +160,16 @@ Since 0.6 falls within this gap, I kept the original cutoff. It accepted all fiv
 ### **Retrieval Distance Results**
 
 | Question | In corpus? | Best distance |
-
 |---|---|---:|
-
 | When can students declare their major? | Yes | 0.3560 |
-
 | How do work-study earnings affect financial aid compared to non-work-study campus jobs? | Yes | 0.1379 |
-
 | How are juniors and seniors prioritized in the housing lottery? | Yes | 0.2050 |
-
 | When do unused dining dollars expire? | Yes | 0.3675 |
-
 | Which campus housing building is closest to the science quad? | Yes | 0.3962 |
-
 | What is the capital of Mongolia? | No | 0.8246 |
-
 | How do I change the oil in a diesel engine? | No | 0.9340 |
-
 | Who won the 1994 World Cup? | No | 0.8859 |
-
 | What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
-
 | How do I write a for loop in Rust? | No | 0.8907 |
 
 ### **Grounding and Relevance Gate Verification**
@@ -232,7 +189,6 @@ The relevance gate rejected this question because its best retrieval distance wa
 ## **How I Used AI**
 
 <!-- Two specific moments. For each: what you asked for, what came back, and
-
      what you changed about it.
      "I asked Claude to write the chunking function from my notes. It ignored
      the overlap, so I added that myself" is the level of detail we're after.
@@ -251,12 +207,17 @@ I used ChatGPT to help interpret the retrieval distances from my five in-corpus 
 
 ChatGPT identified a gap between the highest in-corpus distance (0.3962) and the lowest out-of-scope distance (0.8246). Based on these measurements, I decided to keep the original cutoff of 0.6 rather than change it without evidence.
 
-I then tested a housing lottery question to verify that the model generated a grounded answer with a source citation. I also tested an unrelated question about Mongolia and confirmed that the relevance gate rejected it without making a model call. 
+I then tested a housing lottery question to verify that the model generated a grounded answer with a source citation. I also tested an unrelated question about Mongolia and confirmed that the relevance gate rejected it without making a model call.
 
+**3. Implementing and evaluating hybrid retrieval**
 
+For Unit 2, I used ChatGPT to help identify a measurable improvement after my baseline evaluation met all five criteria. I provided my existing `store.py`, `app.py`, baseline evaluation results, and the Unit 2 requirements.
+
+ChatGPT suggested combining my existing semantic retrieval with BM25 keyword retrieval using Reciprocal Rank Fusion. I implemented the change in `store.py::search` while keeping the chunking strategy, embedding model, relevance cutoff, and generation pipeline unchanged.
+
+After running the full evaluation again, I compared the before and after results rather than assuming the new approach was better. The criterion scores remained 5/5, although some secondary retrieval results and out-of-scope distances changed. I documented that the improvement preserved the system's existing performance rather than claiming an improvement that the results did not demonstrate.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
-
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
      ───────────────────────────────────────────────────────────────────────── -->
@@ -278,22 +239,16 @@ My application stores source filenames as metadata in ChromaDB. I added an optio
 **Example:**
 
 ```bash
-
 python app.py ask "How are juniors and seniors prioritized in the housing lottery?" --source admin_housing_lottery.txt
-
 ```
 
 **Testing Results:**
 
 - Filtering to `admin_housing_lottery.txt` returned only the requested document and generated a correct answer with a source citation.
-
 - Filtering a housing lottery question to `admin_dining_dollars.txt` produced a best distance of 0.8041, exceeding the relevance cutoff of 0.6. The system rejected the question.
-
 - Filtering to a nonexistent filename returned an empty-results message without crashing.
 
 The relevance gate and grounding instructions remain active when metadata filtering is enabled.
-
-
 
 ### **Conversational Memory — Implemented**
 
@@ -318,16 +273,10 @@ Refused questions are not stored in memory, and the conversation history is clea
 #### **Test Results**
 
 - Initial question best distance: 0.184
-
 - Follow-up question best distance: 0.207
-
 - Both questions passed the relevance gate using the 0.6 cutoff.
-
 - Both answers identified `admin_housing_lottery.txt` as their source.
-
 - The application successfully used the previous question as context to answer the follow-up.
-
-
 
 ### **Second Embedding Model — Implemented**
 
@@ -346,27 +295,16 @@ Both models indexed the same 100 chunks from my `campus_life` corpus.
 I tested both models using the same five in-corpus questions and five out-of-scope questions.
 
 | Question | Original L6 Distance | Alternative L12 Distance |
-
 |---|---:|---:|
-
 | When can students declare their major? | 0.3560 | 0.3588 |
-
 | How do work-study earnings affect financial aid compared to non-work-study campus jobs? | 0.1379 | 0.1028 |
-
 | How are juniors and seniors prioritized in the housing lottery? | 0.2050 | 0.2190 |
-
 | When do unused dining dollars expire? | 0.3675 | 0.3766 |
-
 | Which campus housing building is closest to the science quad? | 0.3962 | 0.5371 |
-
 | What is the capital of Mongolia? | 0.8246 | 0.8413 |
-
 | How do I change the oil in a diesel engine? | 0.9340 | 0.8445 |
-
 | Who won the 1994 World Cup? | 0.8859 | 0.8268 |
-
 | What is the recommended dosage of ibuprofen for a headache? | 0.8442 | 0.8046 |
-
 | How do I write a for loop in Rust? | 0.8907 | 0.8541 |
 
 #### **What Changed?**
@@ -386,25 +324,19 @@ I kept the original cutoff because it remained within the gap between the suppor
 After configuring `EMBEDDING_MODEL` in `config.py`:
 
 ```python
-
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L12-v2"
-
 ```
 
 I created the alternative index using:
 
 ```bash
-
 python app.py --variant minilm_l12 index
-
 ```
 
 To retrieve documents using the alternative model:
 
 ```bash
-
 python app.py --variant minilm_l12 retrieve "When do unused dining dollars expire?"
-
 ```
 
 The alternative model must be used with its corresponding `minilm_l12` index. To return to the original model, restore `EMBEDDING_MODEL = "all-MiniLM-L6-v2"` and use the `default` index. The relevance cutoff of 0.6 separated the ten tested questions for both models; that result does not establish a suitable cutoff for every question.
@@ -427,9 +359,7 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
      the same number goes in all three run columns. That's correct, not lazy.
      Milestone 1. -->
 
-The baseline evaluation was produced by `run_eval.py::main` using
-`store.py::search` for retrieval and `chunker.py::split_documents`
-for chunking.
+The baseline evaluation was produced by `run_eval.py::main` using `store.py::search` for retrieval and `chunker.py::split_documents` for chunking.
 
 The complete raw evaluation is stored in:
 
@@ -472,8 +402,7 @@ dining_the_atrium_followup.txt
 housing_tamsin_court.txt
 ```
 
-The expected information about accumulated credit hours was contained in
-`admin_housing_lottery.txt`.
+The expected information about accumulated credit hours was contained in `admin_housing_lottery.txt`.
 
 #### **Criterion 2 — Every answer names a source**
 
@@ -510,8 +439,7 @@ Gate refused 5 of 5.
 
 #### **Criterion 4 — Chunk completeness**
 
-The five sampled chunks produced by `chunker.py::split_documents`
-contained complete sentences without splitting a sentence between chunks.
+The five sampled chunks produced by `chunker.py::split_documents` contained complete sentences without splitting a sentence between chunks.
 
 Result: 5/5.
 
@@ -567,26 +495,35 @@ Result: 5/5.
 
 No criteria were missed during the baseline evaluation.
 
-All five criteria met their targets across all three runs. However, the results
-suggest that some of my original targets were conservative.
+All five criteria met their targets across all three runs. However, the results suggest that some of my original targets were conservative.
 
-In particular, Criterion 5 required the expected information to appear in at
-least 4 of 5 generated answers, but the system achieved 5 of 5 in all three
-runs.
+In particular, Criterion 5 required the expected information to appear in at least 4 of 5 generated answers, but the system achieved 5 of 5 in all three runs.
 
-If I were setting the target after seeing these results, I would tighten
-Criterion 5 from 4 of 5 to 5 of 5. Answer accuracy is central to the purpose of
-the system, and the baseline results show that a stricter target is realistic
-for this corpus.
+If I were setting the target after seeing these results, I would tighten Criterion 5 from 4 of 5 to 5 of 5. Answer accuracy is central to the purpose of the system, and the baseline results show that a stricter target is realistic for this corpus.
 
-I am not changing the original criterion because Unit 2 evaluates the system
-against the targets established before the results were known.
+I am not changing the original criterion because Unit 2 evaluates the system against the targets established before the results were known.
+
+Although none of my criteria were missed, I noticed that semantic-only retrieval sometimes returned secondary chunks that were related in meaning but did not contain the strongest exact keyword matches for the question. This did not cause my five test questions to fail, but it identified the retrieval stage as an area where I could test a measurable improvement.
+
+Because several of my questions contain specific terms such as "work-study," "housing lottery," and "science quad," I chose to test whether adding keyword retrieval alongside semantic retrieval would improve the quality of the retrieved result set.
 
 ## **The Improvement**
 
 **What I changed:**
 
+I changed the retrieval stage from semantic-only vector search to hybrid semantic and BM25 keyword retrieval.
+
+The original system ranked chunks using cosine similarity from the `all-MiniLM-L6-v2` embedding model. I added BM25 keyword retrieval in `store.py::search` and combined the semantic and BM25 rankings using Reciprocal Rank Fusion (RRF).
+
+The semantic ranking receives a weight of 0.65 and the BM25 ranking receives a weight of 0.35. I kept the original cosine distance on each retrieved result so the existing relevance gate could continue using the same cutoff of 0.6.
+
+I made only this retrieval change. The chunking strategy, embedding model, top-k value, relevance cutoff, questions, and generation pipeline remained unchanged so the before and after evaluations could be compared directly.
+
 **Why I picked it:**
+
+The baseline evaluation met all five criteria, but inspection of the retrieved sources showed that some secondary results were semantically related without being especially strong exact matches.
+
+Several questions in my test set contain specific terms such as "work-study," "housing lottery," and "science quad." BM25 rewards exact keyword matches, so I chose hybrid retrieval to test whether combining keyword matching with semantic similarity would improve retrieval without removing the semantic search that was already working well.
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive rather than because your
@@ -597,15 +534,152 @@ against the targets established before the results were known.
 <!-- Same format, same five criteria, three runs each.
      `python run_eval.py --label after` -->
 
+The after evaluation was produced by `run_eval.py::main` using the updated hybrid retrieval implementation in `store.py::search`.
+
+The complete raw evaluation is stored in:
+
+`results/run_2026-09-27_1243_after.md`
+
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | 4 of 5 |  |  |  |  |
-| 5. For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | 4 of 5 |  |  |  |  |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+### **Real Output — After**
+
+Produced by: `run_eval.py::main`
+
+Retrieval: `store.py::search`
+
+Chunking: `chunker.py::split_documents`
+
+#### **Criterion 1 — Retrieved chunk contains the answer**
+
+Example:
+
+```text
+Question: How are juniors and seniors prioritized in the housing lottery?
+
+Best distance: 0.2050
+
+Sources retrieved:
+admin_housing_lottery.txt
+advising_registration.txt
+housing_morrow_house.txt
+housing_old_brewhouse.txt
+housing_tamsin_court.txt
+```
+
+The expected information about accumulated credit hours was still contained in `admin_housing_lottery.txt`.
+
+#### **Criterion 2 — Every answer names a source**
+
+Example:
+
+```text
+Students can declare their major at the end of their second semester,
+or later if they need to.
+
+Source: admin_declaring_a_major.txt
+```
+
+All 15 generated answers continued to name at least one source.
+
+#### **Criterion 3 — Gate stops out-of-corpus questions**
+
+Produced by: `run_eval.py::check_out_of_scope`
+
+```text
+What is the capital of Mongolia?
+best distance: 0.869 — refused
+
+How do I change the oil in a diesel engine?
+best distance: 0.934 — refused
+
+Who won the 1994 World Cup?
+best distance: 0.886 — refused
+
+What is the recommended dosage of ibuprofen for a headache?
+best distance: 0.860 — refused
+
+How do I write a for loop in Rust?
+best distance: 0.891 — refused
+
+Gate refused 5 of 5.
+```
+
+#### **Criterion 4 — Chunk completeness**
+
+The chunking strategy was intentionally unchanged for this experiment.
+
+Example output produced by `chunker.py::split_documents`:
+
+```text
+Morrow House — what it's actually like
+
+Just finished a year in this building. Built 1954, partially renovated 2008. Rooms are singles and doubles, hall bathrooms.
+
+The good: cheapest housing tier by about $900 a year, and the singles are real singles.
+
+The bad: known damp problem on the ground floor; two rooms were taken offline in 2024.
+```
+
+The five sampled chunks contained complete sentences without splitting a sentence between chunks.
+
+Result: 5/5.
+
+#### **Criterion 5 — Generated answer contains expected information**
+
+Example:
+
+```text
+Question: When do unused dining dollars expire?
+
+Answer:
+Unused dining dollars disappear in May, as they do not roll over from the
+spring semester to the following autumn.
+
+Source: admin_dining_dollars.txt
+```
+
+Expected information from `questions.py`: `May`
+
+Result: 5/5.
 
 **Did it help?**
+
+The hybrid retrieval change did not improve the five criterion scores because the baseline system had already achieved 5/5 on every criterion. The after evaluation also achieved 5/5 on all five criteria across all three runs.
+
+However, the retrieval behavior did change.
+
+For the five in-corpus questions, the correct source remained present and the best semantic distances remained unchanged:
+
+| Question | Before | After |
+|---|---:|---:|
+| When can students declare their major? | 0.356 | 0.356 |
+| Work-study and financial aid | 0.138 | 0.138 |
+| Housing lottery | 0.205 | 0.205 |
+| Dining dollars | 0.367 | 0.367 |
+| Science quad housing | 0.396 | 0.396 |
+
+The hybrid ranking also changed some of the secondary sources returned. For example, the work-study query returned `admin_wifi_and_accounts.txt` after the change instead of `admin_printing_quota.txt`, and the housing lottery query returned additional housing documents instead of some of the less related course and dining results from the baseline run.
+
+The out-of-scope results also changed:
+
+| Out-of-scope question | Before | After |
+|---|---:|---:|
+| Capital of Mongolia | 0.825 | 0.869 |
+| Diesel engine oil | 0.934 | 0.934 |
+| 1994 World Cup | 0.886 | 0.886 |
+| Ibuprofen dosage | 0.844 | 0.860 |
+| Rust for loop | 0.891 | 0.891 |
+
+Two out-of-scope questions moved farther away from the 0.6 relevance cutoff, while the other three remained unchanged. All five were still rejected.
+
+Overall, hybrid retrieval preserved the correct answers and all five criterion scores while changing the ranking of secondary results. It did not produce a measurable improvement in my criterion pass rates because those rates were already at their maximum before the change.
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
@@ -621,8 +695,32 @@ against the targets established before the results were known.
      not.
      Milestone 5. -->
 
+No criteria were still missed after the improvement. All five criteria remained MET across all three after runs.
+
+However, the experiment showed that my current criteria do not measure retrieval ranking quality very precisely. They verify that the needed information appears somewhere in the retrieved chunks, but they do not measure whether the best source appears first or whether unrelated secondary chunks are also returned.
+
+If I continued improving the system, I would add a retrieval-quality measure such as requiring the expected source to appear in the top one or top three results. That would make it easier to measure whether hybrid retrieval actually improves ranking quality instead of only confirming that the answer appears somewhere in the top five.
+
+I stopped after this improvement because Unit 2 asks for one isolated change followed by a complete before-and-after evaluation. Making additional changes would make it harder to attribute the results to the hybrid retrieval change.
+
 ## **What I'd Do Differently**
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
      Milestone 5. -->
+
+Knowing what I know now, I would make Criterion 1 stricter.
+
+My original criterion was:
+
+> *For at least 4 of 5 test questions, the retrieved chunks include one that contains the answer.*
+
+The system achieved 5 of 5 before and after the improvement, so this criterion did not distinguish between semantic-only retrieval and hybrid retrieval.
+
+If I were writing the criterion again, I would use:
+
+> *For at least 4 of 5 test questions, a chunk containing the expected answer must appear within the top three retrieved results.*
+
+This would measure retrieval ranking quality more directly and make changes such as hybrid semantic and BM25 search easier to evaluate.
+
+I would also consider tightening Criterion 5 from 4 of 5 to 5 of 5 because the system produced the expected information for all five questions in every run. The original 4-of-5 target was more conservative than the performance observed during testing.
