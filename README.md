@@ -724,3 +724,13 @@ If I were writing the criterion again, I would use:
 This would measure retrieval ranking quality more directly and make changes such as hybrid semantic and BM25 search easier to evaluate.
 
 I would also consider tightening Criterion 5 from 4 of 5 to 5 of 5 because the system produced the expected information for all five questions in every run. The original 4-of-5 target was more conservative than the performance observed during testing.
+
+---
+
+## **Unit 2 Stretch — Second Measured Improvement**
+
+For the Unit 2 stretch feature, I will test a second measured improvement by reducing the number of retrieved chunks from `TOP_K = 5` to `TOP_K = 3`.
+
+I chose this change because my first improvement showed that the current evaluation criteria do not measure retrieval ranking quality very precisely. The system only needs the correct information to appear somewhere in the top five retrieved chunks. Reducing `TOP_K` to 3 creates a stricter retrieval setting and tests whether the system can continue retrieving the necessary information while passing less unrelated context to the generation stage.
+
+I will keep the hybrid semantic and BM25 retrieval implementation, chunking strategy, embedding model, relevance cutoff, questions, and generation pipeline unchanged. Only `TOP_K` will change so the results can be compared with the previous evaluation.
