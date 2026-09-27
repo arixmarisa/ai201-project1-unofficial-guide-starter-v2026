@@ -414,14 +414,12 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
 # **Unit 2**
 
 <!-- These sections get ADDED to what's already above. Don't delete or rewrite
-
      unit 1 — the point is that someone can see what you said before you knew
      how it went. -->
 
 ## **Run Log — Before**
 
 <!-- Your five criteria, three runs each. `python run_eval.py --label before`
-
      runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
      writes it all into results/ for you. Targets come from criteria.md; the
      verdict column is your call.
@@ -429,29 +427,115 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
      the same number goes in all three run columns. That's correct, not lazy.
      Milestone 1. -->
 
+The baseline evaluation was produced by `run_eval.py::main` using
+`store.py::search` for retrieval and `chunker.py::split_documents`
+for chunking.
+
+The complete raw evaluation is stored in:
+
+`results/run_2026-09-27_1223_before.md`
+
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
-
 |---|---|---|---|---|---|
-
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-
-| 4. | | | | | |
-
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
-
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+### **Real Output — Before**
+
+Produced by: `run_eval.py::main`
+
+Retrieval: `store.py::search`
+
+Chunking: `chunker.py::split_documents`
+
+#### **Criterion 1 — Retrieved chunk contains the answer**
+
+Example:
+
+```text
+Question: How are juniors and seniors prioritized in the housing lottery?
+
+Best distance: 0.2050
+
+Sources retrieved:
+admin_housing_lottery.txt
+advising_registration.txt
+course_stat_150_exams.txt
+dining_the_atrium_followup.txt
+housing_tamsin_court.txt
+```
+
+The expected information about accumulated credit hours was contained in
+`admin_housing_lottery.txt`.
+
+#### **Criterion 2 — Every answer names a source**
+
+Example:
+
+```text
+Students declare their major at the end of their second semester, or later if needed.
+
+Source: admin_declaring_a_major.txt
+```
+
+#### **Criterion 3 — Gate stops out-of-corpus questions**
+
+Produced by: `run_eval.py::check_out_of_scope`
+
+```text
+What is the capital of Mongolia?
+best distance: 0.825 — refused
+
+How do I change the oil in a diesel engine?
+best distance: 0.934 — refused
+
+Who won the 1994 World Cup?
+best distance: 0.886 — refused
+
+What is the recommended dosage of ibuprofen for a headache?
+best distance: 0.844 — refused
+
+How do I write a for loop in Rust?
+best distance: 0.891 — refused
+
+Gate refused 5 of 5.
+```
+
+#### **Criterion 4 — Chunk completeness**
+
+The five sampled chunks produced by `chunker.py::split_documents`
+contained complete sentences without splitting a sentence between chunks.
+
+Result: 5/5.
+
+#### **Criterion 5 — Generated answer contains expected information**
+
+Example:
+
+```text
+Question: When do unused dining dollars expire?
+
+Answer:
+Unused dining dollars disappear in May, as they do not roll over from the
+spring semester to the following autumn.
+
+Source: admin_dining_dollars.txt
+```
+
+Expected information from `questions.py`: `May`
+
+Result: 5/5.
 
 ## **Verdicts**
 
 <!-- MET or MISSED for each of the five, against the target you wrote last
-
      unit — not a new one. Plus a sentence on how you decided. That sentence
      matters most where it was close.
      If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
@@ -459,23 +543,16 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
      Milestone 2. -->
 
 | # | Criterion | Verdict | How I decided |
-
 |---|---|---|---|
-
-| 1 |  |  |  |
-
-| 2 |  |  |  |
-
-| 3 |  |  |  |
-
-| 4 |  |  |  |
-
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | All five questions retrieved a chunk from a document containing the expected answer in each run, exceeding the target of at least 4 of 5. |
+| 2 | Every answer names a source | MET | All 15 generated answers named at least one source document, meeting the target of 5 of 5 answers. |
+| 3 | Gate stops out-of-corpus questions | MET | The relevance gate rejected all five out-of-scope questions. The 5/5 result exceeded the target of at least 4 of 5. |
+| 4 | At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | MET | All five sampled chunks preserved complete sentence boundaries, exceeding the target of at least 4 of 5. |
+| 5 | For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | MET | All five questions produced the expected information in all three runs, exceeding the target of at least 4 of 5. |
 
 ## **Diagnoses**
 
 <!-- For each miss: which stage caused it, and how. The stage alone isn't
-
      enough — you need the mechanism.
      Not a diagnosis: "Question 3 didn't work."
      A diagnosis:     "Question 3 asks about laundry costs. The answer is in
@@ -488,6 +565,23 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
      low, and which one you'd tighten and to what.
      Milestone 3. -->
 
+No criteria were missed during the baseline evaluation.
+
+All five criteria met their targets across all three runs. However, the results
+suggest that some of my original targets were conservative.
+
+In particular, Criterion 5 required the expected information to appear in at
+least 4 of 5 generated answers, but the system achieved 5 of 5 in all three
+runs.
+
+If I were setting the target after seeing these results, I would tighten
+Criterion 5 from 4 of 5 to 5 of 5. Answer accuracy is central to the purpose of
+the system, and the baseline results show that a stricter target is realistic
+for this corpus.
+
+I am not changing the original criterion because Unit 2 evaluates the system
+against the targets established before the results were known.
+
 ## **The Improvement**
 
 **What I changed:**
@@ -495,33 +589,25 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
 **Why I picked it:**
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-
-     you picked a fix because it sounded impressive. -->
+     you picked a fix because it sounded impressive rather than because your
+     diagnosis pointed at it. -->
 
 ### **Run Log — After**
 
 <!-- Same format, same five criteria, three runs each.
-
      `python run_eval.py --label after` -->
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
-
 |---|---|---|---|---|---|
-
 | 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-
 | 2. Every answer names a source | 5 of 5 |  |  |  |  |
-
 | 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-
-| 4. | | | | | |
-
-| 5. | | | | | |
+| 4. At least 4 of 5 sampled chunks contain complete sentences without splitting a sentence between chunks | 4 of 5 |  |  |  |  |
+| 5. For at least 4 of 5 test questions, the generated answer contains the expected information recorded in `questions.py` | 4 of 5 |  |  |  |  |
 
 **Did it help?**
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
-
      say that — a change that backfired, honestly reported, earns full credit
      and is more interesting than one that worked. What matters is that you can
      tell.
@@ -530,7 +616,6 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
 ## **What's Still Broken**
 
 <!-- For each criterion still missed after your fix: what you'd do about it,
-
      and why you stopped where you did.
      "I ran out of time" is fine if it's true. Pretending nothing is left is
      not.
@@ -539,6 +624,5 @@ The alternative model must be used with its corresponding `minilm_l12` index. To
 ## **What I'd Do Differently**
 
 <!-- Knowing what you know now — which of your five criteria would you write
-
      differently, and why?
      Milestone 5. -->
