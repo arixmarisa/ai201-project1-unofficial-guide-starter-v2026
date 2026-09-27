@@ -15,11 +15,19 @@ rest of the project if they were wrong:
    `sentence-transformers`. It is the same model — `all-MiniLM-L6-v2`, 384
    dimensions — but it arrives as an ONNX build from Chroma's own CDN, so the
    install needs neither PyTorch nor a reachable Hugging Face. See `_embedder`.
+
+Unit 2 improvement:
+Retrieval now combines semantic similarity with BM25 keyword retrieval using
+Reciprocal Rank Fusion (RRF). The original cosine distance is preserved on each
+result so the existing relevance gate can still use the same 0.6 threshold.
 """
 
 import os
+import re
 import shutil
 from dataclasses import dataclass
+
+from rank_bm25 import BM25Okapi
 
 # Must be set BEFORE chromadb is imported. Without it, some Chroma versions
 # print "Failed to send telemetry event ..." on every single call — which looks
@@ -73,10 +81,9 @@ def _sentence_transformer(name: str):
     """
     The escape hatch: any model that isn't the bundled one.
 
-    Unit 2's "try a second embedding model" stretch option comes through here,
+    Unit 1's "try a second embedding model" stretch option comes through here,
     and so does anything you set `EMBEDDING_MODEL` to. This path *does* need
-    `sentence-transformers` and a reachable Hugging Face, neither of which the
-    default install has — which is the whole point of the default install.
+    `sentence-transformers` and a reachable Hugging Face.
     """
     try:
         from sentence_transformers import SentenceTransformer
@@ -97,8 +104,7 @@ def _embedder():
     """
     Load the embedding model once and keep it.
 
-    First call is slow — it downloads about 80 MB. That's why setup happens
-    before class.
+    First call is slow — it downloads about 80 MB.
     """
     global _model
 
@@ -122,6 +128,7 @@ def _embedder():
 def embed(texts: list[str]) -> list[list[float]]:
     """Turn text into vectors. Runs on your machine, costs no API quota."""
     vectors = _embedder().encode(texts, show_progress_bar=False)
+
     # sentence-transformers and the smoke stand-in return something with a
     # .tolist(); _OnnxEmbedder has already done that conversion itself.
     return vectors.tolist() if hasattr(vectors, "tolist") else vectors
@@ -170,12 +177,21 @@ def build_index(
             documents=[c.text for c in window],
             embeddings=embed([c.text for c in window]),
             metadatas=[
-                {"source": c.source, "index": c.index, "produced_by": c.produced_by}
+                {
+                    "source": c.source,
+                    "index": c.index,
+                    "produced_by": c.produced_by,
+                }
                 for c in window
             ],
         )
 
     return len(chunks)
+
+
+def _tokenize(text: str) -> list[str]:
+    """Simple lowercase tokenizer used for BM25 keyword retrieval."""
+    return re.findall(r"\b\w+\b", text.lower())
 
 
 def search(
@@ -186,9 +202,15 @@ def search(
     source: str | None = None,
 ) -> list[Result]:
     """
-    Retrieve the chunks closest in meaning to a question.
+    Retrieve chunks using hybrid semantic + BM25 search.
 
-    Returns them nearest-first, each with its distance.
+    Semantic retrieval finds chunks with similar meaning.
+    BM25 adds keyword matching for exact words, names, and numbers.
+
+    The two rankings are combined using Reciprocal Rank Fusion (RRF).
+
+    Each returned Result keeps its original cosine distance so the relevance
+    gate can continue using the existing threshold.
     """
     top_k = top_k or config.TOP_K
     name = config.collection_name(corpus, variant)
@@ -200,42 +222,133 @@ def search(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
 
-    # Apply an optional source filter before retrieving chunks.
+    # Keep metadata filtering working with hybrid retrieval.
+    where = {"source": source} if source else None
+
+    if where:
+        stored = collection.get(
+            where=where,
+            include=["documents", "metadatas"],
+        )
+    else:
+        stored = collection.get(
+            include=["documents", "metadatas"],
+        )
+
+    ids = stored["ids"]
+    documents = stored["documents"]
+
+    if not ids:
+        return []
+
+    # ---------------------------------------------------------
+    # 1. Semantic retrieval
+    # ---------------------------------------------------------
     query_options = {
         "query_embeddings": embed([question]),
-        "n_results": min(top_k, collection.count()),
+        # Retrieve all matching chunks so semantic and BM25 ranking can be
+        # combined over the same candidate set.
+        "n_results": len(ids),
     }
 
-    if source:
-        query_options["where"] = {"source": source}
+    if where:
+        query_options["where"] = where
 
-    raw = collection.query(**query_options)
+    semantic_raw = collection.query(**query_options)
 
-    results: list[Result] = []
-    for text, meta, distance in zip(
-        raw["documents"][0], raw["metadatas"][0], raw["distances"][0]
+    semantic_ids = semantic_raw["ids"][0]
+    semantic_docs = semantic_raw["documents"][0]
+    semantic_metas = semantic_raw["metadatas"][0]
+    semantic_distances = semantic_raw["distances"][0]
+
+    results_by_id: dict[str, Result] = {}
+
+    for chunk_id, text, meta, distance in zip(
+        semantic_ids,
+        semantic_docs,
+        semantic_metas,
+        semantic_distances,
     ):
-        results.append(
-            Result(
-                text=text,
-                source=str(meta.get("source", "unknown")),
-                label=f"{meta.get('source', 'unknown')}#{meta.get('index', 0)}",
-                distance=float(distance),
-                produced_by=str(meta.get("produced_by", "unknown")),
-            )
+        results_by_id[chunk_id] = Result(
+            text=text,
+            source=str(meta.get("source", "unknown")),
+            label=f"{meta.get('source', 'unknown')}#{meta.get('index', 0)}",
+            distance=float(distance),
+            produced_by=str(meta.get("produced_by", "unknown")),
         )
-    return results
+
+    # ---------------------------------------------------------
+    # 2. BM25 keyword retrieval
+    # ---------------------------------------------------------
+    tokenized_documents = [_tokenize(text) for text in documents]
+    tokenized_question = _tokenize(question)
+
+    bm25 = BM25Okapi(tokenized_documents)
+    bm25_scores = bm25.get_scores(tokenized_question)
+
+    bm25_ranked = sorted(
+        zip(ids, bm25_scores),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+
+    # ---------------------------------------------------------
+    # 3. Reciprocal Rank Fusion
+    # ---------------------------------------------------------
+    #
+    # Semantic search remains the primary retrieval method.
+    # BM25 helps boost chunks containing exact terms, names, and numbers.
+    #
+    # RRF is useful because cosine distances and BM25 scores are not directly
+    # comparable; it combines their rankings instead of raw score values.
+    fusion_scores: dict[str, float] = {}
+
+    semantic_weight = 0.65
+    bm25_weight = 0.35
+    rrf_k = 60
+
+    for rank, chunk_id in enumerate(semantic_ids, start=1):
+        fusion_scores[chunk_id] = (
+            fusion_scores.get(chunk_id, 0.0)
+            + semantic_weight / (rrf_k + rank)
+        )
+
+    for rank, (chunk_id, bm25_score) in enumerate(bm25_ranked, start=1):
+        # Ignore zero-score BM25 results so arbitrary ordering among chunks with
+        # no matching keywords does not affect the hybrid ranking.
+        if bm25_score <= 0:
+            continue
+
+        fusion_scores[chunk_id] = (
+            fusion_scores.get(chunk_id, 0.0)
+            + bm25_weight / (rrf_k + rank)
+        )
+
+    ranked_ids = sorted(
+        fusion_scores,
+        key=fusion_scores.get,
+        reverse=True,
+    )
+
+    return [
+        results_by_id[chunk_id]
+        for chunk_id in ranked_ids[:top_k]
+        if chunk_id in results_by_id
+    ]
 
 
 def index_exists(corpus: str | None = None, variant: str = "default") -> bool:
-    """Is there an index here to search, without searching it?
+    """
+    Is there an index here to search, without searching it?
 
     `serve.py`'s health check asks this. It deliberately does not embed
     anything: loading the embedding model takes 80 MB and a few seconds, and a
     health check that heavy is a health check nobody can afford to call.
     """
     try:
-        collection = _client().get_collection(config.collection_name(corpus, variant))
+        collection = _client().get_collection(
+            config.collection_name(corpus, variant)
+        )
         return collection.count() > 0
     except Exception:
         return False
